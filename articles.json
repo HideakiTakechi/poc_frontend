@@ -1,0 +1,5 @@
+[
+  { "filename": "article1.md", "title": "最初の記事のタイトル" },
+  { "filename": "article2.md", "title": "二番目の記事のタイトル" },
+  { "filename": "my-article.md", "title": "My Article" }
+]

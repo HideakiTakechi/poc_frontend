@@ -1,23 +1,30 @@
 document.addEventListener('DOMContentLoaded', () => {
     const articlesListSection = document.getElementById('articles-list');
 
-    // 仮の記事リスト (実際にはサーバーサイドや別の方法で取得します)
-    const articleFiles = [
-        { filename: 'article1.md', title: '最初の記事' },
-        { filename: 'article2.md', title: '二番目の記事' },
-        { filename: 'my-article.md', title: '追加記事' }
-    ];
-
+    // 記事一覧ページの場合
     if (articlesListSection) {
-        // 記事一覧ページの場合
-        articleFiles.forEach(article => {
-            const articleElement = document.createElement('div');
-            articleElement.classList.add('article-item');
-            articleElement.innerHTML = `
-                <h3><a href="#" data-filename="${article.filename}">${article.title}</a></h3>
-            `;
-            articlesListSection.appendChild(articleElement);
-        });
+        fetch('/articles.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(articleFiles => {
+                articleFiles.forEach(article => {
+                    const articleElement = document.createElement('div');
+                    articleElement.classList.add('article-item');
+                    articleElement.innerHTML = `
+                        <h3><a href="#" data-filename="${article.filename}">${article.title}</a></h3>
+                    `;
+                    articlesListSection.appendChild(articleElement);
+                });
+            })
+            .catch(error => {
+                console.error("Error loading articles list:", error);
+                articlesListSection.innerHTML = `<p>記事リストの読み込みに失敗しました。</p>`;
+            });
+
 
         // 記事リンクのクリックイベントリスナーを設定
         articlesListSection.addEventListener('click', (event) => {

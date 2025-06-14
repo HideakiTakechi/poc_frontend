@@ -1,0 +1,59 @@
+name: Update Articles List
+
+on:
+  push:
+    paths:
+      - 'articles/*.md'
+
+jobs:
+  update-list:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '14' # または適切なバージョンを指定
+
+    - name: Generate articles.json
+      run: |
+        node -e "
+          const fs = require('fs');
+          const path = require('path');
+          const articlesDir = path.join(__dirname, '..', '..', 'articles');
+          const outputFile = path.join(__dirname, '..', '..', 'articles.json');
+
+          fs.readdir(articlesDir, (err, files) => {
+            if (err) {
+              console.error('Error reading articles directory:', err);
+              process.exit(1);
+            }
+
+            const articleList = files
+              .filter(file => file.endsWith('.md'))
+              .map(file => {
+                // ファイル名からタイトルを生成 (必要に応じて修正)
+                const title = file.replace(/\.md$/, '').replace(/[-_]/g, ' ');
+                return { filename: file, title: title };
+              });
+
+            fs.writeFile(outputFile, JSON.stringify(articleList, null, 2), (err) => {
+              if (err) {
+                console.error('Error writing articles.json:', err);
+                process.exit(1);
+              }
+              console.log('Successfully generated articles.json');
+            });
+          });
+        "
+
+    - name: Commit and push changes
+      run: |
+        git config user.name 'github-actions[bot]'
+        git config user.email 'github-actions[bot]@users.noreply.github.com'
+        git add articles.json
+        git commit -m 'Update articles.json' || echo "No changes to commit"
+        git push
