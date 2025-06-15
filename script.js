@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 記事一覧ページの場合
     if (articlesListSection) {
-        fetch('/articles.json')
+        fetch('articles.json')
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
